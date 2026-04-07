@@ -42,15 +42,7 @@
               {
                 "group": "Pluginler",
                 "pages": [
-                  "pluginler/core-essentials",
-                  "pluginler/lobby-system",
                   "pluginler/rapor-sistemi"
-                ]
-              },
-              {
-                "group": "Plugin Paketleri",
-                "pages": [
-                  "paketler/skyblock-paket"
                 ]
               }
             ]
