@@ -1,0 +1,69 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "WaveSetups",
+  "description": "Minecraft pluginleri ve plugin paketleri dokümantasyonu",
+  "colors": {
+    "primary": "#0A2A66",
+    "light": "#1E90FF",
+    "dark": "#081E45"
+  },
+  "logo": {
+    "light": "/images/logo-nav-tight.png",
+    "dark": "/images/logo-nav-tight.png"
+  },
+  "favicon": "/images/wavesetups-original-favicon.ico",
+  "navbar": {
+    "links": [
+      {
+        "label": "Web Sitesi",
+        "href": "https://wavesetups.com"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Discord Destek",
+      "href": "https://discord.gg/dBSTv53SjG"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Dokümantasyon",
+        "dropdowns": [
+          {
+            "dropdown": "Ana Sayfa",
+            "icon": "house",
+            "description": "WaveSetups pluginleri ve plugin paketleri için kurulum, konfigürasyon ve kullanım dokümanları.",
+            "pages": [
+              "ana-sayfa/baslangic",
+              "ana-sayfa/sozlesme",
+              "support",
+              {
+                "group": "Pluginler",
+                "pages": [
+                  "pluginler/core-essentials",
+                  "pluginler/lobby-system",
+                  "pluginler/rapor-sistemi"
+                ]
+              },
+              {
+                "group": "Plugin Paketleri",
+                "pages": [
+                  "paketler/skyblock-paket"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "discord": "https://discord.gg/dBSTv53SjG",
+      "youtube": "https://youtube.com/@wavesetups",
+      "website": "https://wavesetups.com"
+    }
+  }
+}

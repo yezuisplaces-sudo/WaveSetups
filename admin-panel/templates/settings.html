@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Site Ayarları</h2>
+  <p class="helper">Bu ekran, `docs.json` dosyasını form üzerinden günceller.</p>
+
+  <form method="post" class="grid">
+    <div>
+      <label>Site Adı</label>
+      <input type="text" name="site_name" value="{{ docs.get('name', '') }}" />
+    </div>
+    <div>
+      <label>Site Açıklaması</label>
+      <input type="text" name="site_description" value="{{ docs.get('description', '') }}" />
+    </div>
+
+    <div>
+      <label>Ana Renk (primary)</label>
+      <input type="text" name="color_primary" value="{{ docs.get('colors', {}).get('primary', '') }}" />
+    </div>
+    <div>
+      <label>Açık Mavi (light)</label>
+      <input type="text" name="color_light" value="{{ docs.get('colors', {}).get('light', '') }}" />
+    </div>
+
+    <div>
+      <label>Koyu Renk (dark)</label>
+      <input type="text" name="color_dark" value="{{ docs.get('colors', {}).get('dark', '') }}" />
+    </div>
+    <div>
+      <label>Üst Buton Etiketi</label>
+      <input type="text" name="navbar_button_label" value="{{ docs.get('navbar', {}).get('primary', {}).get('label', '') }}" />
+    </div>
+
+    <div class="full">
+      <label>Üst Buton Linki</label>
+      <input type="text" name="navbar_button_href" value="{{ docs.get('navbar', {}).get('primary', {}).get('href', '') }}" />
+    </div>
+
+    <div>
+      <label>Discord Linki</label>
+      <input type="text" name="social_discord" value="{{ docs.get('footer', {}).get('socials', {}).get('discord', '') }}" />
+    </div>
+    <div>
+      <label>YouTube Linki</label>
+      <input type="text" name="social_youtube" value="{{ docs.get('footer', {}).get('socials', {}).get('youtube', '') }}" />
+    </div>
+
+    <div class="full">
+      <label>Website Linki</label>
+      <input type="text" name="social_website" value="{{ docs.get('footer', {}).get('socials', {}).get('website', '') }}" />
+    </div>
+
+    <div class="full">
+      <button class="btn" type="submit">Ayarları Kaydet</button>
+    </div>
+  </form>
+{% endblock %}

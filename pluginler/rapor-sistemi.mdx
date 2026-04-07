@@ -1,0 +1,50 @@
+---
+title: Rapor Sistemi
+description: Bu eklentiye ait kurulum, komut ve yapılandırma dokümantasyonu.
+icon: file-text
+---
+
+## Genel Bakış
+
+**Rapor sistemi**, oyunda sorun çıkaran oyuncuların anlık olarak kayıt altına alınmasını sağlar. O anda aktif bir yetkili bulunmasa bile, sonradan bu davranışlara dair elinizde kanıt olur ve ilgili oyuncuyu kolayca takibe alabilirsiniz. Ayrıca pluginimiz temiz, düzenli ve optimize edilmiş bir şekilde geliştirildiği için sunucunuza hiçbir şekilde yük bindirmez.
+
+## Kurulum
+
+1. Plugini Satın Aldıktan Sonra .jar Dosyasını İndirin
+2. .jar Dosyasını Plugins Dosyasına Atın
+3. Sunucuyu Yeniden Başlatın
+4. Discord Sunucunuza Yeni Bir Kanal Oluşturun
+5. O Kanal İçin Ayarlardan Bir Webhook Oluşturun ve Link i Kopyalayın
+6. Kopyaladığınız Linki Plugin Dosyası İçindeki config.yml Dosyasının İçindeki Doğru Yere Yapıştırın
+7. Son Olarak Plugini Satın Aldıktan Sonra Size Özel Verilen Lisans Key ini Config Dosyasındaki Doğru Yerine Yapıştırdıktan Sonra Reload Atarak Plugini Kullanmaya Başlayabilirsiniz
+
+## Webhook Yerleri
+
+| `webhook-url: "Normal Rapor Bildirimi Kanalının Webhook Linki"`
+
+| `history-webhook-url: "Rapor Dökümanlarının Webhook Kanalının Linki"`
+
+## Komutlar ve Yetkiler
+
+| Komut | Açıklama | Yetki |
+| --- | --- | --- |
+| `/rapor (oyuncu) (neden) (açıklama) ` | Oyuncu Moderasyon Ekibine Raporlanır | Oyuncu |
+| `/staffreport` | Önceden Raporlanmış Tüm Oyuncular Gösterilir ve Dökümantasyon u Discord a Gönderebilirsiniz | Admin
+
+## Sorun Giderme
+
+- Raporların Discord Sunucunuza Gitmesi İçin Discord Kanalınıza Özel Bir Webhook Linki Oluşturmalı ve Pluginin Config Dosyasında Doğru Yere Yapıştırmalısınız Aksi Halde Raporlar Discord a Gönderilemeyecek ve Hata Verecektir
+- Oyuncuların Geçmiş Rapor Dökümantasyonunu Almak İçin Aynı İşlemi Geçmiş Rapor Kanalınız İçinde Yapmalısınız Aksi Halde Hata Verecektir
+- Çözemediğiniz Hatalarda Lütfen Discord Sunucumuza Gelerek Destek Talebi Açıp Yardım İsteyiniz
+
+## Permission Node’ları
+
+```txt
+discordreport.staff | /staffreports yetkili menüsünü açma
+discordreport.reload | /report reload ile config yenileme
+```
+
+## Fiyat bilgisi alabilir miyim?
+
+Nedir Bu Tatlı Şeyin Fiyatı ? Sadece **50** TL
+

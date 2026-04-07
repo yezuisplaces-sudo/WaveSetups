@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WaveSetups Admin</title>
+  <style>
+    :root {
+      --bg: #071733;
+      --panel: #0c2450;
+      --line: #1f4f99;
+      --text: #e7f3ff;
+      --muted: #9ec7f5;
+      --accent: #34a8ff;
+      --accent-strong: #0a78d1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: radial-gradient(circle at top, #0e3069 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(12, 36, 80, 0.85); border: 1px solid var(--line);
+      border-radius: 14px; padding: 12px 16px; margin-bottom: 16px;
+    }
+    .brand { font-weight: 700; letter-spacing: 0.3px; }
+    .menu a {
+      color: var(--text); text-decoration: none; margin-left: 14px;
+      font-size: 14px;
+    }
+    .panel {
+      background: rgba(12, 36, 80, 0.85);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .flash {
+      background: #08295c;
+      border: 1px solid #1e6bc4;
+      color: #cfe8ff;
+      padding: 10px 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    input, textarea, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #2d67b8;
+      background: #0a2148;
+      color: var(--text);
+      padding: 10px;
+      font-size: 14px;
+    }
+    textarea { min-height: 520px; font-family: Consolas, monospace; line-height: 1.45; }
+    label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .full { grid-column: 1 / -1; }
+    .btn {
+      width: auto;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+      border: 1px solid #57bcff;
+      color: #fff;
+      font-weight: 600;
+      padding: 10px 14px;
+    }
+    .list { display: grid; gap: 8px; }
+    .file-link {
+      display: block;
+      text-decoration: none;
+      color: #d9ecff;
+      border: 1px solid #285ea7;
+      background: #0b234b;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    .file-link:hover { border-color: #4eb4ff; }
+    .helper { color: var(--muted); font-size: 13px; margin-top: 0; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">WaveSetups Admin Panel</div>
+      <div class="menu">
+        <a href="{{ url_for('dashboard') }}">Dosyalar</a>
+        <a href="{{ url_for('settings') }}">Site Ayarları</a>
+        <a href="{{ url_for('logout') }}">Çıkış</a>
+      </div>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="panel">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>

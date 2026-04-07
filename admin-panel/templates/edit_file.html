@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Dosya Düzenle</h2>
+  <p class="helper">{{ rel_path }}</p>
+  <form method="post">
+    <label>İçerik</label>
+    <textarea name="content" spellcheck="false">{{- content -}}</textarea>
+    <div style="margin-top: 10px;">
+      <button class="btn" type="submit">Kaydet</button>
+    </div>
+  </form>
+  {% if can_delete %}
+    <form method="post" action="{{ url_for('delete_file') }}" onsubmit="return confirm('Bu dosya silinecek. Emin misin?');" style="margin-top:12px;">
+      <input type="hidden" name="file" value="{{ rel_path }}" />
+      <button type="submit" style="width:auto;background:#5f1420;border:1px solid #a73e53;color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer;">
+        Dosyayı Sil
+      </button>
+    </form>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+  "name": "vitepress-project",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
+    "serve": "vitepress serve docs",
+    "mint:dev": "mintlify dev",
+    "mint:check": "mintlify broken-links"
+  },
+  "devDependencies": {
+    "mintlify": "^4.2.487"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@algolia/client-search"
+      ]
+    }
+  }
+}

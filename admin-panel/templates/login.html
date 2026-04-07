@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WaveSetups Admin Giriş</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: grid; place-items: center;
+      font-family: "Segoe UI", Arial, sans-serif; color: #e8f3ff;
+      background: radial-gradient(circle at top, #103778 0%, #071733 55%);
+    }
+    .card {
+      width: min(420px, 92vw); background: rgba(10, 31, 68, 0.92);
+      border: 1px solid #2f67b8; border-radius: 14px; padding: 20px;
+    }
+    h1 { margin: 0 0 8px; font-size: 22px; }
+    p { margin: 0 0 14px; color: #9bc6f7; font-size: 14px; }
+    input, button {
+      width: 100%; border-radius: 10px; border: 1px solid #2d67b8;
+      background: #0a2148; color: #e8f3ff; padding: 10px; font-size: 14px;
+    }
+    button {
+      margin-top: 10px; cursor: pointer; font-weight: 700;
+      background: linear-gradient(180deg, #34a8ff, #0a78d1);
+      border-color: #57bcff;
+    }
+    .flash {
+      background: #08295c; border: 1px solid #1e6bc4; border-radius: 10px;
+      color: #cfe8ff; padding: 10px 12px; margin-bottom: 10px; font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <form class="card" method="post">
+    <h1>WaveSetups Admin</h1>
+    <p>Yalnızca yöneticiler için giriş ekranı.</p>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <input type="password" name="password" placeholder="Admin şifresi" required />
+    <button type="submit">Giriş Yap</button>
+  </form>
+</body>
+</html>
