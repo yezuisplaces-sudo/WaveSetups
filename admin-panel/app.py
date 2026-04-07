@@ -1,36 +1,24 @@
-import json
+﻿import json
 import os
 import re
+from datetime import datetime
 from pathlib import Path
 
 from flask import Flask, flash, redirect, render_template, request, session, url_for
+from werkzeug.utils import secure_filename
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DOCS_JSON_PATH = ROOT_DIR / "docs.json"
+IMAGE_UPLOAD_DIR = ROOT_DIR / "images" / "uploads"
 ALLOWED_EDIT_EXTENSIONS = {".md", ".mdx", ".json"}
+ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
 SYSTEM_DIRS = {"admin-panel", "node_modules", ".git", "docs", "images"}
 ROOT_EDITABLE_FILES = {"support.mdx", "docs.json"}
 
 
 def slugify(value: str) -> str:
-    tr_map = str.maketrans(
-        {
-            "ç": "c",
-            "Ç": "c",
-            "ğ": "g",
-            "Ğ": "g",
-            "ı": "i",
-            "İ": "i",
-            "ö": "o",
-            "Ö": "o",
-            "ş": "s",
-            "Ş": "s",
-            "ü": "u",
-            "Ü": "u",
-        }
-    )
-    normalized = value.translate(tr_map).strip().lower()
+    normalized = value.strip().lower()
     normalized = re.sub(r"[^a-z0-9]+", "-", normalized)
     normalized = re.sub(r"-{2,}", "-", normalized).strip("-")
     return normalized or "yeni-sayfa"
@@ -57,43 +45,66 @@ def write_docs_json(data: dict) -> None:
         f.write("\n")
 
 
+
+
 def write_text_file(path: Path, content: str) -> None:
     normalized = normalize_text(content)
     with path.open("w", encoding="utf-8", newline="\n") as f:
         f.write(normalized)
+def is_allowed_image(filename: str) -> bool:
+    suffix = Path(filename).suffix.lower()
+    return suffix in ALLOWED_IMAGE_EXTENSIONS
+
+
+def list_uploaded_images() -> list[dict]:
+    IMAGE_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    items: list[dict] = []
+    for file in sorted(IMAGE_UPLOAD_DIR.glob("*"), key=lambda p: p.stat().st_mtime, reverse=True):
+        if not file.is_file():
+            continue
+        rel = file.relative_to(ROOT_DIR).as_posix()
+        web_path = f"/{rel}"
+        items.append(
+            {
+                "name": file.name,
+                "web_path": web_path,
+                "markdown": f"![{file.stem}]({web_path})",
+            }
+        )
+    return items
 
 
 def create_page_template(title: str, category_slug: str) -> str:
     description_map = {
-        "pluginler": "Bu eklentiye ait kurulum, komut ve yapılandırma dokümantasyonu.",
-        "paketler": "Bu pakete ait kurulum, yapılandırma ve kullanım dokümantasyonu.",
-        "ana-sayfa": "Bu sayfada ilgili konuya ait temel bilgiler yer alır.",
+        "pluginler": "Bu eklentiye ait kurulum, komut ve yapÄ±landÄ±rma dokÃ¼mantasyonu.",
+        "paketler": "Bu pakete ait kurulum, yapÄ±landÄ±rma ve kullanÄ±m dokÃ¼mantasyonu.",
+        "ana-sayfa": "Bu sayfada ilgili konuya ait temel bilgiler yer alÄ±r.",
     }
     return f"""---
 title: {title}
-description: {description_map.get(category_slug, "Bu sayfaya ait dokümantasyon içeriği.")}
+description: {description_map.get(category_slug, "Bu sayfaya ait dokÃ¼mantasyon iÃ§eriÄŸi.")}
 icon: file-text
 ---
 
-## Genel Bakış
+## Genel BakÄ±ÅŸ
 
-Bu bölümde **{title}** için temel bilgileri bulabilirsiniz.
+Bu bÃ¶lÃ¼mde **{title}** iÃ§in temel bilgileri bulabilirsiniz.
 
 ## Kurulum
 
-1. Buraya kurulum adımlarını ekleyin.
-2. Gerekli dosyaları ve sürümleri belirtin.
-3. Varsa özel notları ekleyin.
+1. Buraya kurulum adÄ±mlarÄ±nÄ± ekleyin.
+2. Gerekli dosyalarÄ± ve sÃ¼rÃ¼mleri belirtin.
+3. Varsa Ã¶zel notlarÄ± ekleyin.
 
 ## Komutlar ve Yetkiler
 
-| Komut | Açıklama | Yetki |
+| Komut | AÃ§Ä±klama | Yetki |
 | --- | --- | --- |
-| `/ornek` | Örnek komut açıklaması | Oyuncu |
+| `/ornek` | Ã–rnek komut aÃ§Ä±klamasÄ± | Oyuncu |
 
 ## Sorun Giderme
 
-- Sık karşılaşılan hataları ve çözümlerini bu alana yazın.
+- SÄ±k karÅŸÄ±laÅŸÄ±lan hatalarÄ± ve Ã§Ã¶zÃ¼mlerini bu alana yazÄ±n.
 """
 
 
@@ -341,7 +352,7 @@ def create_app() -> Flask:
             if password == app.config["ADMIN_PASSWORD"]:
                 session["admin_ok"] = True
                 return redirect(url_for("dashboard"))
-            flash("Şifre hatalı.")
+            flash("Åifre hatalÄ±.")
         return render_template("login.html")
 
     @app.route("/logout")
@@ -354,18 +365,48 @@ def create_app() -> Flask:
         prune_missing_navigation_pages()
         files = list_editable_files()
         categories = get_category_options()
-        return render_template("dashboard.html", files=files, categories=categories)
+        uploaded_images = list_uploaded_images()
+        return render_template(
+            "dashboard.html",
+            files=files,
+            categories=categories,
+            uploaded_images=uploaded_images,
+        )
+    @app.route("/upload-image", methods=["POST"])
+    def upload_image():
+        file = request.files.get("image_file")
+        if file is None or not file.filename:
+            flash("Gorsel secilmedi.")
+            return redirect(url_for("dashboard"))
 
-    @app.route("/create-category", methods=["POST"])
+        safe_name = secure_filename(file.filename)
+        if not safe_name:
+            flash("Dosya adi gecersiz.")
+            return redirect(url_for("dashboard"))
+
+        if not is_allowed_image(safe_name):
+            flash("Desteklenmeyen gorsel formati.")
+            return redirect(url_for("dashboard"))
+
+        IMAGE_UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        suffix = Path(safe_name).suffix.lower()
+        stem = slugify(Path(safe_name).stem)
+        final_name = f"{stem}-{timestamp}{suffix}"
+        target = IMAGE_UPLOAD_DIR / final_name
+
+        file.save(target)
+        flash(f"Gorsel yuklendi: images/uploads/{final_name}")
+        return redirect(url_for("dashboard"))    @app.route("/create-category", methods=["POST"])
     def create_category():
         category_label = request.form.get("category_label", "").strip()
         if not category_label:
-            flash("Kategori adı boş olamaz.")
+            flash("Kategori adÄ± boÅŸ olamaz.")
             return redirect(url_for("dashboard"))
 
         category_slug_input = request.form.get("category_slug", "").strip()
         category_slug = slugify(category_slug_input or category_label)
-        first_page_title = request.form.get("first_page_title", "").strip() or "Başlangıç"
+        first_page_title = request.form.get("first_page_title", "").strip() or "BaÅŸlangÄ±Ã§"
         first_page_slug = slugify(first_page_title)
 
         folder = ROOT_DIR / category_slug
@@ -374,7 +415,7 @@ def create_app() -> Flask:
         page_rel = f"{category_slug}/{first_page_slug}.mdx"
         page_abs = normalize_rel_path(page_rel)
         if page_abs.exists():
-            flash("Kategori veya başlangıç sayfası zaten mevcut.")
+            flash("Kategori veya baÅŸlangÄ±Ã§ sayfasÄ± zaten mevcut.")
             return redirect(url_for("edit_file", file=page_rel))
 
         write_text_file(page_abs, create_page_template(first_page_title, category_slug))
@@ -388,7 +429,7 @@ def create_app() -> Flask:
                 group_pages.append(page_rel)
             write_docs_json(docs)
 
-        flash(f"Kategori oluşturuldu: {category_label}")
+        flash(f"Kategori oluÅŸturuldu: {category_label}")
         return redirect(url_for("edit_file", file=page_rel))
 
     @app.route("/create", methods=["POST"])
@@ -398,11 +439,11 @@ def create_app() -> Flask:
 
         valid_categories = {item["slug"] for item in get_category_options()}
         if category not in valid_categories:
-            flash("Geçersiz kategori seçimi.")
+            flash("GeÃ§ersiz kategori seÃ§imi.")
             return redirect(url_for("dashboard"))
 
         if not title:
-            flash("Başlık boş olamaz.")
+            flash("BaÅŸlÄ±k boÅŸ olamaz.")
             return redirect(url_for("dashboard"))
 
         page_slug = slugify(title)
@@ -416,28 +457,28 @@ def create_app() -> Flask:
         abs_path.parent.mkdir(parents=True, exist_ok=True)
         write_text_file(abs_path, create_page_template(title, category))
         add_page_to_navigation(category, page_slug)
-        flash(f"Yeni sayfa oluşturuldu: {rel_path}")
+        flash(f"Yeni sayfa oluÅŸturuldu: {rel_path}")
         return redirect(url_for("edit_file", file=rel_path))
 
     @app.route("/edit", methods=["GET", "POST"])
     def edit_file():
         rel_path = request.args.get("file", "").strip()
         if not rel_path:
-            flash("Dosya seçimi yapılmadı.")
+            flash("Dosya seÃ§imi yapÄ±lmadÄ±.")
             return redirect(url_for("dashboard"))
 
         try:
             abs_path = normalize_rel_path(rel_path)
         except ValueError:
-            flash("Geçersiz dosya yolu.")
+            flash("GeÃ§ersiz dosya yolu.")
             return redirect(url_for("dashboard"))
 
         if not abs_path.exists() or not abs_path.is_file():
-            flash("Dosya bulunamadı.")
+            flash("Dosya bulunamadÄ±.")
             return redirect(url_for("dashboard"))
 
         if abs_path.suffix.lower() not in ALLOWED_EDIT_EXTENSIONS:
-            flash("Bu dosya türü panelden düzenlenemez.")
+            flash("Bu dosya tÃ¼rÃ¼ panelden dÃ¼zenlenemez.")
             return redirect(url_for("dashboard"))
 
         if request.method == "POST":
@@ -466,15 +507,15 @@ def create_app() -> Flask:
         try:
             abs_path = normalize_rel_path(rel_path)
         except ValueError:
-            flash("Geçersiz dosya yolu.")
+            flash("GeÃ§ersiz dosya yolu.")
             return redirect(url_for("dashboard"))
 
         if not abs_path.exists() or not abs_path.is_file():
-            flash("Dosya bulunamadı.")
+            flash("Dosya bulunamadÄ±.")
             return redirect(url_for("dashboard"))
 
         if abs_path.suffix.lower() not in {".md", ".mdx"}:
-            flash("Yalnızca içerik dosyaları silinebilir.")
+            flash("YalnÄ±zca iÃ§erik dosyalarÄ± silinebilir.")
             return redirect(url_for("edit_file", file=rel_path))
 
         abs_path.unlink()
@@ -486,7 +527,7 @@ def create_app() -> Flask:
     @app.route("/settings", methods=["GET", "POST"])
     def settings():
         if not DOCS_JSON_PATH.exists():
-            flash("docs.json bulunamadı.")
+            flash("docs.json bulunamadÄ±.")
             return redirect(url_for("dashboard"))
 
         docs = read_docs_json()
@@ -524,7 +565,7 @@ def create_app() -> Flask:
             ).strip()
 
             write_docs_json(docs)
-            flash("Site ayarları kaydedildi.")
+            flash("Site ayarlarÄ± kaydedildi.")
             return redirect(url_for("settings"))
 
         return render_template("settings.html", docs=docs)
@@ -535,3 +576,11 @@ def create_app() -> Flask:
 if __name__ == "__main__":
     app = create_app()
     app.run(host="127.0.0.1", port=5050, debug=True)
+
+
+
+
+
+
+
+
